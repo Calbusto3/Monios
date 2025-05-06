@@ -14,6 +14,7 @@ class OtherCommands(commands.Cog):
         self.allowed_roles = [1266457418561355900, 1266457425335160854]
         self.welcome_channel_id = 1287840591714979984
         self.role_reactions = {}  # {message_id: {"emoji": role_id}}
+        self.goodbye_channel_id = 1316529224047394838  # ID du salon d'au revoir
 
     @commands.hybrid_command(name="embed", description="Send a message as an embed.")
     @app_commands.describe(
@@ -328,6 +329,20 @@ class OtherCommands(commands.Cog):
             await member.send(embed=dm_embed)
         except discord.Forbidden:
             pass
+
+    @commands.Cog.listener()
+    async def on_member_remove(self, member: discord.Member):
+        """Envoie un message d'au revoir dans le salon spécifié."""
+        channel = self.bot.get_channel(self.goodbye_channel_id)
+        if channel:
+            embed = discord.Embed(
+                title="👋 Goodbye!",
+                description=f"{member.mention} has left the server.",
+                color=discord.Color.red()
+            )
+            embed.set_footer(text=f"User ID: {member.id}")
+            embed.set_thumbnail(url=member.avatar.url if member.avatar else "")
+            await channel.send(embed=embed)
 
     @app_commands.command(name="rolereact", description="Create a role-reaction message.")
     @commands.has_permissions(manage_channels=True)
