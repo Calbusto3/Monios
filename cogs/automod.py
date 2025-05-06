@@ -9,7 +9,7 @@ class AutoMod(commands.Cog):
         self.bot = bot
         self.automod_active = False
         self.infractions = {}
-        self.log_channel_id = 1366083164753104979
+        self.log_channel_id = 1323737318007246878
         self.timeout_duration = timedelta(minutes=5)
 
         self.banned_words = [
@@ -24,7 +24,7 @@ class AutoMod(commands.Cog):
             "slut", "whore", "bullshit", "fag", "faggot", "retard", "dumbass", "cock",
             "pussy", "douche", "nigga", "nigger", "jerk off", "blowjob", "dipshit",
             "suck my dick", "suck my cock", "bitchass", "fuck off", "get fucked", "twat",
-            "hoe", "cum", "jizz", "dickhead", "shithead"
+            "hoe", "cum", "jizz", "dickhead", "shithead", "pawjob", "sybau", "kys", "vro"
         ]
 
     def normalize(self, text: str) -> str:

@@ -16,7 +16,7 @@ class PotitbotAutoMod(commands.Cog):
         while True:
             for activity in self.activities:
                 await self.bot.change_presence(activity=activity)
-                await asyncio.sleep(30)  # Temps entre chaque activité (en secondes)
+                await asyncio.sleep(60)  # Temps entre chaque activité (en secondes)
 
     @commands.Cog.listener()
     async def on_ready(self):

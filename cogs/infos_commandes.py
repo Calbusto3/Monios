@@ -156,6 +156,16 @@ class InfoCommand(commands.Cog):
                 info_embed.add_field(name="Example", value="!dm @user Hi!", inline=False)
                 info_embed.add_field(name="Required Permission", value="Manage Messages", inline=False)
 
+            elif selected_value == "dm_embed":
+                            info_embed = discord.Embed(
+                                title="Command !dm_embed",
+                                description="TThis command allows you to send a private message to a user. The message will be sent as an embed.",
+                                color=discord.Color.purple()
+                            )
+                            info_embed.add_field(name="Usage", value="!dm_embed [title] [description] [body] [footer] [color]", inline=False)
+                            info_embed.add_field(name="Example", value="!dm_embed @user 'Important !' '- Vous êtes accepté dans le staff.' 'votre candidature a été retenue, lu et apprécié par le staff, tout d'abord.." 'le staff' 'FFFFFF', inline=False)
+                            info_embed.add_field(name="Required Permission", value="Manage Messages", inline=False)
+
             elif selected_value == "reset":
                 info_embed = discord.Embed(
                     title="Command !reset",

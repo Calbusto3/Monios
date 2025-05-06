@@ -15,7 +15,7 @@ class OtherCommands(commands.Cog):
         self.welcome_channel_id = 1287840591714979984
         self.role_reactions = {}  # {message_id: {"emoji": role_id}}
 
-    @commands.command(name='mp_embed', description="Send a DM with an embed to a member")
+    @commands.command(name='dm_embed', description="Send a DM with an embed to a member")
     async def mp_embed(self, ctx, member_input: str = None, title: str = None, description: str = None, body: str = None, footer: str = None, color: discord.Color = discord.Color.yellow()):
         """Send a DM with an embed, with preview and error handling."""
         try:
@@ -161,7 +161,7 @@ class OtherCommands(commands.Cog):
         except Exception as e:
             await ctx.send(f"An error occurred: {str(e)}")
 
-    @commands.hybrid_command(name='mp', description="Send a DM to a member")
+    @commands.hybrid_command(name='dm', description="Send a DM to a member")
     async def mp(self, ctx, member: discord.Member = None, *, message: str = None):
         """Send a DM to a member (hybrid command)."""
         try:
