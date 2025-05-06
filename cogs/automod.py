@@ -9,16 +9,16 @@ class AutoMod(commands.Cog):
         self.bot = bot
         self.automod_active = False
         self.infractions = {}
-        self.log_channel_id = 1323737318007246878
-        self.timeout_duration = timedelta(minutes=5)
+        self.log_channel_id = 1369380240333213918
+        self.timeout_duration = timedelta(minutes=10)
 
         self.banned_words = [
             # French & English insults
             "pute", "connard", "salope", "batard", "encule", "niqué", "connasse", "pd",
             "sucer", "trou du cul", "branlette", "fils de pute", "enculer", "conasse",
             "gros con", "sale pute", "tarlouze", "ferme ta gueule", "bite", "enfoire",
-            "pede", "tapette", "alope", "pouffiasse", "cndr", "cnrd", "ecl", "bz",
-            "je baise ta", "je baize", "f-d-p", "f d p", "jebztamere", "ftg", "ferme tg",
+            "pede", "tapette", "salope", "pouffiasse", "cndr", "cnrd", "ecl", "bz",
+            "baise t", "baize", "fdp", "jebztamere", "ftg", "ferme tg",
             "fermetg", "fils de c", "fils de t", "batar",
             "fucking", "motherfucker", "bitch", "dick", "asshole", "bastard", "cunt",
             "slut", "whore", "bullshit", "fag", "faggot", "retard", "dumbass", "cock",

@@ -15,19 +15,53 @@ class OtherCommands(commands.Cog):
         self.welcome_channel_id = 1287840591714979984
         self.role_reactions = {}  # {message_id: {"emoji": role_id}}
 
-    @commands.command(name='dm_embed', description="Send a DM with an embed to a member")
-    async def mp_embed(self, ctx, member_input: str = None, title: str = None, description: str = None, body: str = None, footer: str = None, color: discord.Color = discord.Color.yellow()):
+    @commands.hybrid_command(name="embed", description="Send a message as an embed.")
+    @app_commands.describe(
+        title="The title of the embed (required).",
+        body="The body of the embed (optional).",
+        footer="The footer of the embed (optional).",
+        color="The color of the embed in hexadecimal format (optional, default is white)."
+    )
+    async def embed(self, ctx: commands.Context, title: str, body: str = None, footer: str = None, color: str = "#FFFFFF"):
+        """Send a message as an embed."""
+        try:
+            # Convert the color from hexadecimal to an integer
+            try:
+                embed_color = int(color.strip("#"), 16)
+            except ValueError:
+                embed_color = 0xFFFFFF  # Default to white if the color is invalid
+
+            # Create the embed
+            embed = discord.Embed(title=title, description=body, color=embed_color)
+            if footer:
+                embed.set_footer(text=footer)
+
+            # Send the embed
+            await ctx.send(embed=embed)
+            if isinstance(ctx, commands.Context):  # For prefix commands
+                await ctx.message.add_reaction("✅")
+            else:  # For slash commands
+                await ctx.interaction.response.send_message("✅ Embed sent successfully!", ephemeral=True)
+        except Exception as e:
+            if isinstance(ctx, commands.Context):
+                await ctx.send(f"❌ An error occurred: {str(e)}")
+            else:
+                await ctx.interaction.response.send_message(f"❌ An error occurred: {str(e)}", ephemeral=True)
+
+    @commands.hybrid_command(name='dm_embed', description="Send a DM with an embed to a member")
+    async def mp_embed(self, ctx: commands.Context, member_input: str = None, title: str = None, description: str = None, body: str = None, footer: str = None, color: discord.Color = discord.Color.yellow()):
         """Send a DM with an embed, with preview and error handling."""
         try:
-            # Delete the command message after execution
-            await ctx.message.delete()
+            # Delete the command message after execution (only for prefix commands)
+            if isinstance(ctx, commands.Context):
+                await ctx.message.delete()
 
             # Check required fields
             if not member_input:
-                await ctx.send("You must mention a member or provide their ID to send a DM.")
+                await ctx.send("You must mention a member or provide their ID to send a DM.", ephemeral=True)
                 return
             if not title or not description:
-                await ctx.send("You must provide a title and a description for the embed.")
+                await ctx.send("You must provide a title and a description for the embed.", ephemeral=True)
                 return
 
             # Identify the member either by mention or ID
@@ -37,20 +71,22 @@ class OtherCommands(commands.Cog):
                 else:
                     member = await commands.MemberConverter().convert(ctx, member_input)
             except:
-                await ctx.send("The specified member could not be found.")
+                await ctx.send("The specified member could not be found.", ephemeral=True)
                 return
 
-            # Create the preview embed
-            embed_preview = discord.Embed(
+            # Create the embed
+            embed_to_send = discord.Embed(
                 title=title[:256],  # Limit title to 256 characters
                 description=description[:4096],  # Limit description to 4096 characters
                 color=color
             )
             if footer:
-                embed_preview.set_footer(text=footer[:2048])  # Limit footer to 2048 characters
+                embed_to_send.set_footer(text=footer[:2048])  # Limit footer to 2048 characters
             if body:
-                embed_preview.add_field(name="Message", value=body[:1024], inline=False)  # Limit body to 1024 characters
+                embed_to_send.add_field(name="Message", value=body[:1024], inline=False)  # Limit body to 1024 characters
 
+            # Create the preview embed
+            embed_preview = embed_to_send.copy()
             embed_preview.set_author(name=f"Preview for {ctx.author.display_name}")
             embed_preview.set_footer(text="Press 'Send' to confirm, 'Edit' to adjust, or 'Cancel' to abandon.")
 
@@ -65,7 +101,7 @@ class OtherCommands(commands.Cog):
 
                 # Send the final message to the member
                 try:
-                    await member.send(embed=embed_preview)
+                    await member.send(embed=embed_to_send)
                     embed_success = discord.Embed(
                         title="✅ Message sent successfully!",
                         color=discord.Color.green()
@@ -77,7 +113,7 @@ class OtherCommands(commands.Cog):
                     if logs_channel:
                         log_embed = discord.Embed(
                             title="📩 Message Sent",
-                            description=f"**Recipient**: {member.mention}\n**Sender**: {ctx.author.mention}\n**Message**: {embed_preview.title}",
+                            description=f"**Recipient**: {member.mention}\n**Sender**: {ctx.author.mention}\n**Message**: {embed_to_send.title}",
                             color=discord.Color.green()
                         )
                         await logs_channel.send(embed=log_embed)
@@ -105,13 +141,17 @@ class OtherCommands(commands.Cog):
                     data = msg.content.split('|')
                     if len(data) >= 1 and data[0].strip():
                         embed_preview.title = data[0].strip()[:256]  # Limit to 256 characters
+                        embed_to_send.title = embed_preview.title
                     if len(data) >= 2 and data[1].strip():
                         embed_preview.description = data[1].strip()
+                        embed_to_send.description = embed_preview.description
                     if len(data) >= 3 and data[2].strip():
                         embed_preview.set_footer(text=data[2].strip())
+                        embed_to_send.set_footer(text=data[2].strip())
                     if len(data) >= 4 and data[3].strip():
                         try:
                             embed_preview.color = discord.Color(int(data[3].strip(), 16))
+                            embed_to_send.color = embed_preview.color
                         except ValueError:
                             pass
 
@@ -159,7 +199,7 @@ class OtherCommands(commands.Cog):
             await ctx.send(embed=embed_preview, view=view)
 
         except Exception as e:
-            await ctx.send(f"An error occurred: {str(e)}")
+            await ctx.send(f"An error occurred: {str(e)}", ephemeral=True)
 
     @commands.hybrid_command(name='dm', description="Send a DM to a member")
     async def mp(self, ctx, member: discord.Member = None, *, message: str = None):
