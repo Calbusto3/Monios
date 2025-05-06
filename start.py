@@ -9,7 +9,7 @@ import asyncio
 
 # Charger les variables d'environnement
 load_dotenv()
-token = os.getenv('DISCORD_TOKEN')
+token = os.getenv('TOKEN')
 
 # Vérification du token
 if not token:
