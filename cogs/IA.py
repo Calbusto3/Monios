@@ -17,7 +17,8 @@ FOUNDERS = {
 
 MODERATORS = {
     593437130441752586: "xav4454",
-    463081595998568448: "Echo500"
+    463081595998568448: "Echo500",
+    1033834366822002769: ".calbusto"
 }
 
 HALF_MODS = {
@@ -43,7 +44,7 @@ def save_json(path, data):
 class IA(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.member_count = load_json(MEMBER_COUNT_FILE, {"count": 100})["count"]
+        self.member_count = load_json(MEMBER_COUNT_FILE, {"count": 101})["count"]
         self.allowed_channels = load_json(ALLOWED_CHANNELS_FILE, {})
 
     @commands.command()
@@ -92,7 +93,7 @@ class IA(commands.Cog):
                 r"nombre de membres"
             ]
             if any(re.search(p, content) for p in patterns):
-                await message.reply(f"We currently have **{self.member_count} members** on the server! 🎉")
+                await message.reply(f"We currently have **{self.member_count} members** on the server")
                 return
 
         if self.should_respond(channel_id, "staff"):
