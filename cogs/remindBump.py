@@ -13,8 +13,12 @@ class BumpReminder(commands.Cog):
 
     @commands.command(name="set_bump_channel", description="Set the channel for bump reminders.")
     @commands.has_permissions(administrator=True)
-    async def set_bump_channel(self, ctx, channel: discord.TextChannel):
+    async def set_bump_channel(self, ctx, channel: discord.TextChannel = None):
         """Sets the channel where bump reminders will be sent."""
+        if channel is None:
+            await ctx.send("❌ Please mention a valid text channel. Example: `!set_bump_channel #general`")
+            return
+
         self.bump_channel_id = channel.id
         await ctx.send(f"✅ Bump reminders will now be sent in {channel.mention}.")
 

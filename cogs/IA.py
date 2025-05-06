@@ -32,12 +32,20 @@ ROLES = {
 }
 
 def load_json(path, default):
+    # Crée le dossier parent si nécessaire
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    
+    # Charge le fichier JSON ou retourne la valeur par défaut
     if not os.path.exists(path):
         return default
     with open(path, 'r') as f:
         return json.load(f)
 
 def save_json(path, data):
+    # Crée le dossier parent si nécessaire
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    
+    # Sauvegarde les données dans le fichier JSON
     with open(path, 'w') as f:
         json.dump(data, f, indent=4)
 
