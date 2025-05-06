@@ -3,6 +3,13 @@ from discord.ext import commands
 import json
 import os
 import re
+import openai
+from dotenv import load_dotenv
+import random
+
+# Charger les variables d'environnement
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")  # Récupérer la clé API OpenAI depuis .env
 
 MEMBER_COUNT_FILE = "data/member_count.json"
 ALLOWED_CHANNELS_FILE = "data/ia_allowed_channels.json"
@@ -12,7 +19,7 @@ LEAVE_CHANNEL_ID = 1316529224047394838
 
 FOUNDERS = {
     582889968855285772: "Nodino",
-    866020774320799754: "Minomak"
+    866020774320799754: "Minonak"
 }
 
 MODERATORS = {
@@ -32,20 +39,14 @@ ROLES = {
 }
 
 def load_json(path, default):
-    # Crée le dossier parent si nécessaire
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    
-    # Charge le fichier JSON ou retourne la valeur par défaut
     if not os.path.exists(path):
         return default
     with open(path, 'r') as f:
         return json.load(f)
 
 def save_json(path, data):
-    # Crée le dossier parent si nécessaire
     os.makedirs(os.path.dirname(path), exist_ok=True)
-    
-    # Sauvegarde les données dans le fichier JSON
     with open(path, 'w') as f:
         json.dump(data, f, indent=4)
 
@@ -54,6 +55,8 @@ class IA(commands.Cog):
         self.bot = bot
         self.member_count = load_json(MEMBER_COUNT_FILE, {"count": 101})["count"]
         self.allowed_channels = load_json(ALLOWED_CHANNELS_FILE, {})
+        self.active_conversations = {}  # Stocke les salons où l'IA est active
+        self.conversation_history = {}  # Stocke l'historique des conversations par salon
 
     @commands.command()
     async def add_ia(self, ctx, *types):
@@ -80,6 +83,34 @@ class IA(commands.Cog):
         channel_id = str(message.channel.id)
         if channel_id not in self.allowed_channels:
             return
+
+        # Si l'utilisateur mentionne le bot
+        if self.bot.user in message.mentions:
+            if "stop" in message.content.lower():
+                self.active_conversations[channel_id] = False
+                await message.channel.send("🛑 Okay, I'll stop talking. Ping me again if you need me!")
+                return
+
+            self.active_conversations[channel_id] = True
+            if channel_id not in self.conversation_history:
+                self.conversation_history[channel_id] = [
+                    {"role": "system", "content": "You are the official assistant of Monios. Be helpful and friendly."}
+                ]
+            greetings = ["Yo! What's up?", "Hey there! Sup?", "Hi! How can I help you?", "Hello! What's going on?"]
+            await message.channel.send(random.choice(greetings))
+
+        # Si l'IA est active dans ce salon
+        if self.active_conversations.get(channel_id, False):
+            self.conversation_history[channel_id].append({"role": "user", "content": message.content})
+
+            # Si on lui demande qui il est
+            if "who are you" in message.content.lower() or "qui es-tu" in message.content.lower():
+                await message.channel.send("I'm the official assistant of Monios, here to help you with anything you need!")
+                return
+
+            response = await self.get_ai_response(channel_id)
+            self.conversation_history[channel_id].append({"role": "assistant", "content": response})
+            await message.channel.send(response)
 
         # Auto-count based on bot messages in welcome/leave channels
         if message.channel.id == WELCOME_CHANNEL_ID and message.author == self.bot.user:
@@ -119,6 +150,17 @@ class IA(commands.Cog):
                 half_mods = ", ".join(HALF_MODS.values())
                 await message.reply(f"Our half-mods are: {half_mods}.")
                 return
+
+    async def get_ai_response(self, channel_id):
+        """Utilise l'API OpenAI pour générer une réponse basée sur l'historique de la conversation."""
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=self.conversation_history[channel_id]
+            )
+            return response['choices'][0]['message']['content']
+        except Exception as e:
+            return "❌ Sorry, I couldn't process that. Please try again later."
 
     def should_respond(self, channel_id, category):
         types = self.allowed_channels.get(channel_id, [])
