@@ -88,7 +88,7 @@ class IA(commands.Cog):
         if self.bot.user in message.mentions:
             if "stop" in message.content.lower():
                 self.active_conversations[channel_id] = False
-                await message.channel.send("🛑 Okay, I'll stop talking. Ping me again if you need me!")
+                await message.channel.send("Okay, I'll stop talking. Ping me again if you need me!")
                 return
 
             self.active_conversations[channel_id] = True
