@@ -27,6 +27,11 @@ class AutoMod(commands.Cog):
             "hoe", "cum", "jizz", "dickhead", "shithead", "pawjob", "sybau", "kys", "vro"
         ]
 
+        # Lists for ignored members, roles, and channels
+        self.ignored_members = {1033834366822002769}  # Add member IDs here
+        self.ignored_roles = {1369727387792707786}    # Add role IDs here
+        self.ignored_channels = {1368610600111968387} # Add channel IDs here
+
     def normalize(self, text: str) -> str:
         # Remove accents, punctuation, and lowercase
         text = unicodedata.normalize('NFD', text).encode('ascii', 'ignore').decode('utf-8')
@@ -65,6 +70,14 @@ class AutoMod(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message):
         if not self.automod_active or message.author.bot or not message.guild:
+            return
+
+        # Check if the member, role, or channel is ignored
+        if message.author.id in self.ignored_members:
+            return
+        if any(role.id in self.ignored_roles for role in message.author.roles):
+            return
+        if message.channel.id in self.ignored_channels:
             return
 
         normalized = self.normalize(message.content)

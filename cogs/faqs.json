@@ -1,0 +1,30 @@
+[
+    {
+        "question": "who (are) (u|you)",
+        "response": "The offial bot of Monios, a Discord server dedicated to the Monios project. I am here to assist you with any questions you may have."
+      },
+    {
+      "question": "who (is|are) the (creator|founder)s",
+      "response": "The founders of the server are Nodino and Minonak."
+    },
+    {
+      "question": "who (is|are) the moderators?",
+      "response": "The current moderators are xav4454, Echo500 and .calbusto."
+    },
+    {
+      "question": "who are the half[- ]?mods",
+      "response": "The Half-Mods team includes .calbusto and tox.py."
+    },
+    {
+      "question": "what is the staff team",
+      "response": "The 'Staff Team' is a role assigned to members responsible for managing the server."
+    },
+    {
+      "question": "what is monios dev team",
+      "response": "The 'Monios Dev Team' is composed of developers working on the Monios project and tools."
+    },
+    {
+      "question": "how many members (are there|do we have)",
+      "response": "There are currently {member_count} members in the server."
+    }
+  ]  

@@ -59,7 +59,7 @@ class MonBot(commands.Bot):
 # Configurer les intents
 intents = discord.Intents.all()
 
-bot = MonBot(command_prefix="!", intents=intents, help_command=None)
+bot = MonBot(command_prefix=".", intents=intents, help_command=None)
 
 @bot.event
 async def on_ready():
