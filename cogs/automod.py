@@ -117,32 +117,31 @@ class AutoMod(commands.Cog):
         uid = message.author.id
         now = datetime.utcnow()
 
+        # Gestion des mots de degré 2 (mute direct et suppression)
         if found_words_2:
             try:
                 await message.delete()
             except discord.Forbidden:
                 pass
 
-            # Immediate mute
+            # Mute immédiat
             await self.warn_user(message.author)
             await self.timeout_user(message.author)
             mutes = guild_data["mutes"]
             mutes[uid] = mutes.get(uid, 0) + 1
-            await self.log_infraction(message.author, message.content, 1, "Immediate mute", found_words_2, degree=2)
+            await self.log_infraction(
+                message.author, message.content, 1, "Immediate mute", found_words_2, degree=2
+            )
             return
 
+        # Gestion des mots de degré 1 (avertissements, pas de suppression)
         if found_words_1:
-            try:
-                await message.delete()
-            except discord.Forbidden:
-                pass
-
             infractions = guild_data["infractions"]
             if uid not in infractions:
                 infractions[uid] = []
             infractions[uid].append(now)
 
-            # Keep only last 10 minutes
+            # Conserver uniquement les infractions des 10 dernières minutes
             infractions[uid] = [ts for ts in infractions[uid] if now - ts <= timedelta(minutes=10)]
             count = len(infractions[uid])
 
@@ -158,7 +157,9 @@ class AutoMod(commands.Cog):
                 await self.warn_user(message.author)
                 await self.timeout_user(message.author)
 
-            await self.log_infraction(message.author, message.content, count, sanction, found_words_1, degree=1)
+            await self.log_infraction(
+                message.author, message.content, count, sanction, found_words_1, degree=1
+            )
 
     @commands.hybrid_command(name="automod_on")
     @commands.has_permissions(administrator=True)
