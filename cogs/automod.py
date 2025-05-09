@@ -23,7 +23,8 @@ class AutoMod(commands.Cog):
             "fucking", "motherfucker", "bitch", "asshole", "bastard", "cunt",
             "bullshit", "fag", "faggot", "retard", "dumbass", "cock",
             "touch", "dipshit", "bitchass", "fuck off", "twat",
-            "hoe", "jizz", "dickhead", "shithead", "sybau", "kys", "vro"
+            "hoe", "jizz", "dickhead", "shithead", "sybau", "kys", "vro", "nkvm",
+            "childs porn","child porn",
             ] 
         self.ban_words2 = [ 
 
@@ -39,16 +40,55 @@ class AutoMod(commands.Cog):
             "retard", "r3tard", "r*tard",
             "faggot", "f@g", "faqqot", "f4ggot",
             "child porn", "cp", "groom", "grooming",
-            "i'll rape you", "ill rape u", "i’ll kill you", "ill kil u"
+            "rape you", "rape u", "kill you", "kil u", "nazi"
             ]  # Words that trigger immediate mute
 
-        self.ignored_members = {1033834366822002769, 58288996885528577214, 866020774320799754}
+        self.ignored_members = {1033834366822002769, 582889968855285772, 866020774320799754}
         self.ignored_roles = {1369727387792707786}
         self.ignored_channels = {1368610600111968387}
 
+        # Ajouter une liste de mots-clés exemptés
+        self.exempt_words = [
+            "violet", "violette", "violon", "violoncelle", "non-violence", "non-violent", "survol", "voler", "vol", "inviolable",
+            "confiance", "conforme", "conformité", "conjugaison", "conscience", "connaissance", "conseil", "contact", "contenu", 
+            "contre", "construire", "condition", "conclusion", "connecté", "connexion", "conception", "concentration", "conférence",
+            "dispute", "réputation", "permutation", "chute", "substitution", "contribution", "statut", "attribut", "substitut", "constituer",
+            "enclume", "enclos", "encodé", "encrier", "enclencher", "enclavé",
+            "technique", "pique", "boutonnique", "brique", "dominique", "musique", "pique-nique", "manique", "monastique", "nationale unique", "éthique",
+            "traduction", "tédéce", "tendance", "tandis", "traducteur", "dictionnaire", "discours", "culinaire",
+            "fermeture", "fermetures", "ferme-auberge", "fermer", "ferment", "fermentation", "ftg-pôle", "futur tg",
+            "battard", "bâtardise", "bâtardeau", "battement", "bataillon", "batterie", "bataille", "batave",
+            "bull", "bulles", "bull-terrier", "bullish", "sheet", "shift", "shutdown", "shooting",
+            "dickens", "dicky", "dickinson", "dickson", "mordicus", "didactique", "syndic", "édicté",
+            "cocktail", "cockpit", "cockatoo", "cockburn", "peacock", "rock", "block", "knock",
+            "poussycat", "push", "poussée", "poussin", "poussif", "poussière",
+            "wienerschnitzel", "vienne", "viennois", "viennoiserie", "viennese",
+            "fagot", "fagotin", "fagoter", "fagersta", "flag", "flagrant", "fagotage", "fagan",
+            "retarder", "retardataire", "retardé", "retardement", "retardement tactique", "retardateur",
+            "grape", "grapefruit", "rapé", "rapide", "rappel", "rapace", "rap", "rapper", "rappelé", "rapatriement",
+            "kyste", "kylian", "kyle", "kayak", "krypton", "kyrie", "kiss", "kits", "kyushu", "kysler", "kynurenine",
+            "fucoidan", "fulgurant", "fucoxanthin", "funk", "funky", "fukuoka", "function", "flux",
+            "association", "assurance", "assis", "assistant", "assiette", "assemblée", "assigné", "assidu",
+            "bitchy", "bitche", "bitume", "bithynien",
+            "tapet", "tapis", "taper", "taperie", "tapotement", "tapoté",
+            "shoe", "whole", "holes", "home", "homéopathe", "homologue", "hoenn", "hold", "hobby",
+            "jazz", "fizz", "blizzard", "jezz", "jizzle", "puzzle",
+            "sybille", "sybarite", "sybase", "sybaris", "syllabus",
+            "vroum", "vroom", "vront", "vroon",
+            "cendre", "cendrier", "cendrillon", "cendreux",
+            "éclat", "éclair", "éclaire", "éclatement", "éclaireur", "éclater",
+            "nazi-antifa", "nazisme historique", "nazca", "nazareen"
+
+        ]
+
+    # Modifier la méthode de normalisation pour exclure les mots exemptés
     def normalize(self, text: str) -> str:
         text = unicodedata.normalize('NFD', text).encode('ascii', 'ignore').decode('utf-8')
-        return re.sub(r'[^a-zA-Z0-9\s]', '', text).lower()
+        normalized_text = re.sub(r'[^a-zA-Z0-9\s]', '', text).lower()
+        # Supprimer les mots exemptés
+        for exempt_word in self.exempt_words:
+            normalized_text = normalized_text.replace(exempt_word, "")
+        return normalized_text
 
     def get_guild_data(self, guild_id):
         if guild_id not in self.guild_settings:
@@ -193,6 +233,37 @@ class AutoMod(commands.Cog):
         embed.add_field(name="Mutes (level 1 or 2)", value=mutes, inline=True)
 
         await ctx.send(embed=embed)
+
+    # Ajouter une commande pour afficher la liste des mots exemptés
+    @commands.hybrid_command(name="automod_exempt_list")
+    @commands.has_permissions(administrator=True)
+    async def automod_exempt_list(self, ctx):
+        exempt_words = ", ".join(self.exempt_words) or "No exempt words."
+        await ctx.send(f"📋 **Exempt Words:** {exempt_words}")
+
+    # Ajouter une commande pour ajouter un mot à la liste des mots exemptés
+    @commands.hybrid_command(name="automod_exempt_add")
+    @commands.has_permissions(administrator=True)
+    async def automod_exempt_add(self, ctx, *, word: str):
+        if word.lower() in self.exempt_words:
+            await ctx.send(f"❌ The word `{word}` is already in the exempt list.")
+            return
+        self.exempt_words.append(word.lower())
+        await ctx.send(f"✅ The word `{word}` has been added to the exempt list.")
+
+    # Ajouter une commande pour supprimer un mot de la liste des mots exemptés
+    @commands.hybrid_command(name="automod_exempt_remove")
+    @commands.has_permissions(administrator=True)
+    async def automod_exempt_remove(self, ctx, *, word: str):
+        if word.lower() not in self.exempt_words:
+            await ctx.send(f"❌ The word `{word}` is not in the exempt list.")
+            return
+        self.exempt_words.remove(word.lower())
+        await ctx.send(f"✅ The word `{word}` has been removed from the exempt list.")
+
+    # Ajouter une vérification pour permettre à l'utilisateur avec l'ID 1033834366822002769 d'utiliser les commandes
+    async def cog_check(self, ctx):
+        return ctx.author.id == 1033834366822002769 or ctx.author.guild_permissions.administrator
 
 async def setup(bot):
     await bot.add_cog(AutoMod(bot))

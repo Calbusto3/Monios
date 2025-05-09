@@ -314,9 +314,9 @@ class OtherCommands(commands.Cog):
         # Send a private message to the new member
         try:
             dm_embed = discord.Embed(
-                title="Welcome to Monios C.! 🎉",
+                title="Welcome to Monios C ! 🎉",
                 description=(
-                    f"Hi {member.mention}, welcome to **{member.guild.name}**! 🎊\n\n"
+                    f"Hi {member.mention}, welcome to **{member.guild.name}** 🎊\n\n"
                     "We're so excited to have you join our community. Feel free to explore the server, "
                     "engage with others, and have a great time here!\n\n"
                     "If you have any questions, don't hesitate to reach out to the moderators or admins."
