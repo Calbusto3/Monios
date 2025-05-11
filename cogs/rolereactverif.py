@@ -42,13 +42,20 @@ class RoleReactVerif(commands.Cog):
         )
         embed.set_footer(text="Select your language(s) by reacting below.")
 
-        message = await ctx.send(embed=embed)
-        for emoji in self.flag_roles:
-            await message.add_reaction(emoji)
+        try:
+            message = await ctx.send(embed=embed)
+            for emoji in self.flag_roles:
+                try:
+                    await message.add_reaction(emoji)
+                except discord.Forbidden:
+                    await ctx.send(f"❌ Impossible d'ajouter la réaction {emoji}. Vérifiez les permissions du bot.")
+                    return
 
-        # Enregistre l’ID du message si tu veux le retrouver plus tard
-        self.language_message_id = message.id
-        self.language_channel_id = ctx.channel.id
+            # Enregistre l’ID du message si tu veux le retrouver plus tard
+            self.language_message_id = message.id
+            self.language_channel_id = ctx.channel.id
+        except discord.Forbidden:
+            await ctx.send("❌ Impossible d'envoyer le message. Vérifiez les permissions du bot.")
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
