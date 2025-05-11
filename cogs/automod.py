@@ -77,7 +77,7 @@ class AutoMod(commands.Cog):
             "vroum", "vroom", "vront", "vroon",
             "cendre", "cendrier", "cendrillon", "cendreux",
             "éclat", "éclair", "éclaire", "éclatement", "éclaireur", "éclater",
-            "nazi-antifa", "nazisme historique", "nazca", "nazareen"
+            "nazi-antifa", "nazisme historique", "nazca", "nazareen", "violance", "violant", "violence",
 
         ]
 
