@@ -16,6 +16,21 @@ class Verification(commands.Cog):
         self.failure_roles_remove = [1371121192647524363]  # Rôles à retirer en cas d'échec
         self.bot_role_id = 1287785206014541967  # Rôle pour les bots
 
+        self.flag_roles = {
+            "🇺🇸": 1343018038533947464,  # English
+            "🇫🇷": 1288189738540470272,  # French
+            "🇸🇦": 1288207380374360258,  # Arabic
+            "🇪🇸": 1288207452868972544,  # Spanish
+            "🇮🇹": 1324836942210400379,  # Italian
+            "🇩🇪": 1288207363836350565,  # German
+            "🇳🇱": 1324836683090497566,  # Dutch
+            "🇵🇹": 1343027059437473812,  # Portuguese
+            "🇸🇪": 1343026628699099138,  # Swedish
+            "🇹🇷": 1343239109656969329,  # Turkish
+            "🇨🇳": 1368569520150679622,  # Chinese
+            "🇷🇺": 1343239201402912909   # Russian
+        }
+
     @commands.hybrid_command(name="verif_set")
     @commands.has_permissions(administrator=True)
     async def verif_set(self, ctx):
@@ -159,6 +174,70 @@ class VerificationButton(discord.ui.View):
     @discord.ui.button(label="Se vérifier", style=discord.ButtonStyle.green)
     async def verify(self, interaction: discord.Interaction, button: discord.ui.Button):
         await self.cog.handle_verification(interaction)
+
+
+    @commands.command(name="rolereactverif")
+    @commands.has_permissions(administrator=True)
+    async def rolereactverif(self, ctx):
+        embed = discord.Embed(
+            title="🌍 Language Selection / Sélection de la langue",
+            description=(
+                "**🇺🇸 English**: React with 🇺🇸 to select English.\n"
+                "**🇫🇷 Français**: Réagis avec 🇫🇷 pour choisir le français.\n"
+                "**🇸🇦 العربية**: اضغط على 🇸🇦 لاختيار العربية.\n"
+                "**🇪🇸 Español**: Reacciona con 🇪🇸 para seleccionar español.\n"
+                "**🇮🇹 Italiano**: Reagisci con 🇮🇹 per selezionare l'italiano.\n"
+                "**🇩🇪 Deutsch**: Reagiere mit 🇩🇪, um Deutsch zu wählen.\n"
+                "**🇳🇱 Nederlands**: Reageer met 🇳🇱 om Nederlands te kiezen.\n"
+                "**🇵🇹 Português**: Reaja com 🇵🇹 para selecionar português.\n"
+                "**🇸🇪 Svenska**: Reagera med 🇸🇪 för att välja svenska.\n"
+                "**🇹🇷 Türkçe**: 🇹🇷 ile tepki vererek Türkçe'yi seçin.\n"
+                "**🇨🇳 中文**: 反应 🇨🇳 以选择中文。\n"
+                "**🇷🇺 Русский**: Нажмите 🇷🇺, чтобы выбрать русский."
+            ),
+            color=discord.Color.blurple()
+        )
+        embed.set_footer(text="Select your language(s) by reacting below.")
+
+        message = await ctx.send(embed=embed)
+        for emoji in self.flag_roles:
+            await message.add_reaction(emoji)
+
+        # Enregistre l’ID du message si tu veux le retrouver plus tard
+        self.language_message_id = message.id
+        self.language_channel_id = ctx.channel.id
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, payload):
+        if payload.user_id == self.bot.user.id:
+            return
+
+        if payload.message_id != getattr(self, "language_message_id", None):
+            return
+
+        guild = self.bot.get_guild(payload.guild_id)
+        member = guild.get_member(payload.user_id)
+        role_id = self.flag_roles.get(str(payload.emoji.name))
+        if role_id:
+            role = guild.get_role(role_id)
+            if role:
+                await member.add_roles(role, reason="Langue sélectionnée via réaction")
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_remove(self, payload):
+        if payload.user_id == self.bot.user.id:
+            return
+
+        if payload.message_id != getattr(self, "language_message_id", None):
+            return
+
+        guild = self.bot.get_guild(payload.guild_id)
+        member = guild.get_member(payload.user_id)
+        role_id = self.flag_roles.get(str(payload.emoji.name))
+        if role_id:
+            role = guild.get_role(role_id)
+            if role:
+                await member.remove_roles(role, reason="Langue retirée via réaction")
 
 async def setup(bot):
     await bot.add_cog(Verification(bot))
